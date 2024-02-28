@@ -1,4 +1,4 @@
-import { Router, Request, Response } from 'express';
+import { Router, Response } from 'express';
 
 const router = Router();        
 router.get('/duplecates', (_, res: Response) => {
