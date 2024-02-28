@@ -1,0 +1,23 @@
+const mongoose = require('mongoose');
+const Env = require('dotenv')
+
+let connection
+ const connectDB = async () => {
+//   const mongoDbUrl = Env.get('MONGO_URL')
+
+
+  const mongoDbUrl = `mongodb://0.0.0.0:27017/express-app`
+  try {
+    console.log(`Connecting to MongoDB URL ${mongoDbUrl}...`)
+    connection = await mongoose.connect(mongoDbUrl, { maxPoolSize: 50 })
+    console.log(`Connected to MongoDB URL ${mongoDbUrl}`)
+    return connection
+  } catch (error) {
+    //handle connect error
+    console.log(`Cant connect to MongoDB URL ${mongoDbUrl} - ERROR : ${error}`)
+  }
+}
+connectDB()
+
+// export const db:any = mongoose.connection;
+
