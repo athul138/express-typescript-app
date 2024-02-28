@@ -1,7 +1,7 @@
 const bcrypt = require('bcrypt')
 
 module.exports = {
-    hashPassword: (password) => {
+    hashPassword: (password:string) => {
 
         if (password) {
             const saltRounds = 10;
@@ -10,7 +10,7 @@ module.exports = {
 
     },
 
-    matchPassword:async (currentPassword, incomingPassword)  => {
+    matchPassword:async (currentPassword:string, incomingPassword:string)  => {
         const match = await bcrypt.compare(incomingPassword, currentPassword );
         return match
     },
