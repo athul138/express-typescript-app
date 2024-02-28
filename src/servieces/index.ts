@@ -10,19 +10,9 @@ module.exports = {
 
     },
 
-
-    matchPassword: (currentPassword, incomingPassword) => {
-
-        console.log("currentPassword -->>>", currentPassword)
-        console.log("incomingPassword-->>>", incomingPassword)
-
-
-        let passwordMatch = bcrypt.compare(incomingPassword, currentPassword, function (err, result) {
-            return result
-        });
-        console.log("passwordMatch-->>>", passwordMatch)
-        return passwordMatch
-
+    matchPassword:async (currentPassword, incomingPassword)  => {
+        const match = await bcrypt.compare(incomingPassword, currentPassword );
+        return match
     },
 
 };
