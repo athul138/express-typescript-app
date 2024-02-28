@@ -2,9 +2,11 @@
 
 import { Request, Response } from 'express';
 import User, { UserInterface } from '../model/user';
+var jwt = require('jsonwebtoken');
+
 import userSchema from '../validators/userValidator';
 
-const { hashPassword } = require("../servieces/index");
+const { hashPassword, matchPassword } = require("../servieces/index");
 
 export const createUser = async (req: Request, res: Response) => {
     try {
@@ -51,8 +53,32 @@ export const login = async (req: Request, res: Response) => {
         // check password match for that email . 
         // if password is matching create a jwt token. return that token.
 
+        const { email, password } = req.body
+        const users = await User.findOne({ email: email }, 'email password');
 
-        // res.json(deletedUser);
+        if (users) {
+            let currentPassword = users?.password
+            let passwordMatch = await matchPassword(currentPassword, password)
+            if (passwordMatch) {
+
+                // generate token and return token 
+                let privateKey = process.env.PRIVATEKEY
+
+                var token = jwt.sign({ email: email, id: users._id }, privateKey, {
+                    expiresIn: `${15}d`,
+                });
+
+                let data = { email: email, token: token }
+
+                res.json(data);
+            } else {
+                return  res.status(422).send('invalid credentails');
+            }
+
+        } else {
+            return  res.status(404).send('no user found');
+        }
+
     } catch (error) {
         res.status(500).send('Server Error');
     }
