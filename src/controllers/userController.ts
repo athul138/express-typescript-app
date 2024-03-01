@@ -2,7 +2,10 @@
 
 import { Request, Response } from 'express';
 import User, { UserInterface } from '../model/user';
+import PaymentModel from '../model/payment';
 var jwt = require('jsonwebtoken');
+const Razorpay = require('razorpay');
+
 
 import userSchema from '../validators/userValidator';
 
@@ -33,11 +36,11 @@ export const createUser = async (req: Request, res: Response) => {
 
 
         res.json(newUser);
-    } catch (error:any) {
+    } catch (error: any) {
 
-        if(error?.code == 11000){
+        if (error?.code == 11000) {
             res.status(422).send(`${error?.keyValue?.email} already exists`);
-        }else{
+        } else {
             res.status(500).send('Server Error');
         }
     }
@@ -116,5 +119,31 @@ export const deleteUser = async (req: Request, res: Response) => {
         res.json(deletedUser);
     } catch (error) {
         res.status(500).send('Server Error');
+    }
+};
+
+export const createPayment = async (req: Request, res: Response) => {
+    try {
+        //LOGIC
+
+        let paymentValues: any = { item_id: req.body?.item_id, name: "item1", description: "item1 describtion", price: req.body?.price, currency: "INR", status: "PENDING" }
+        const newPayment = await PaymentModel.create(paymentValues);
+
+
+        console.log("newPayment",newPayment)
+
+
+        var instance = new Razorpay({
+            key_id: 'rzp_test_xrqyfoB53WzmUC',
+            key_secret: 'SpLdPooUSgvDEQNioh9dePCs',
+          });
+
+
+          console.log("payment instance -----------", instance)
+
+
+
+    } catch (error: any) {
+        res.status(500).send(error.message);
     }
 };
