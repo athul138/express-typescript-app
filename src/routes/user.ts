@@ -1,7 +1,7 @@
 const express = require('express');
 var jwt = require('jsonwebtoken');
 import { Request, Response } from 'express';
-import { createUser, getUsers, updateUser, deleteUser, login , createPayment} from '../controllers/userController';
+import { createUser, getUsers, updateUser, deleteUser, login , createOrder} from '../controllers/userController';
 
 const router = express.Router();
 
@@ -35,6 +35,6 @@ router.get('/', [authGuard, getUsers]);
 // router.get('/', getUsers);
 router.put('/:id', updateUser);
 router.delete('/:id', deleteUser);
-router.post('/payment', createPayment);
+router.post('/payment', createOrder);
 
 export default router;
