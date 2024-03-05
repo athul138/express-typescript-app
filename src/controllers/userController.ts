@@ -2,12 +2,13 @@
 
 import { Request, Response } from 'express';
 import User, { UserInterface } from '../model/user';
-import PaymentModel from '../model/payment';
+import OrderModel from '../model/order';
 var jwt = require('jsonwebtoken');
 const Razorpay = require('razorpay');
 
 
 import userSchema from '../validators/userValidator';
+import mongoose ,{Types} from 'mongoose';
 
 const { hashPassword, matchPassword } = require("../servieces/index");
 
@@ -122,24 +123,62 @@ export const deleteUser = async (req: Request, res: Response) => {
     }
 };
 
-export const createPayment = async (req: Request, res: Response) => {
+export const createOrder = async (req: Request, res: Response) => {
     try {
+
+        console.log("jiiiiiiiiiiiiiiiiiiii")
         //LOGIC
 
-        let paymentValues: any = { item_id: req.body?.item_id, name: "item1", description: "item1 describtion", price: req.body?.price, currency: "INR", status: "PENDING" }
-        const newPayment = await PaymentModel.create(paymentValues);
+        let orderValues: any = { item_id: req.body?.item_id, name: "item1", description: "item1 describtion", price: req.body?.price, currency: "INR", status: "PENDING" }
+        const orderId = await OrderModel.create(orderValues);
 
-
-        console.log("newPayment",newPayment)
-
-
-        var instance = new Razorpay({
+        var razorpay = new Razorpay({
             key_id: 'rzp_test_xrqyfoB53WzmUC',
             key_secret: 'SpLdPooUSgvDEQNioh9dePCs',
-          });
+        });
+
+        const options = {
+            amount: parseInt(orderValues.price) * 100,
+            currency: orderValues.currency,
+            receipt: orderId._id
+            // order_capture: 1
+        };
+
+        console.log("pazsfd",options)
+
+        try {
+            const response = await razorpay.orders.create(options)
+            console.log("response", response)
+            if (response) {
+
+                await OrderModel.updateOne(
+                    {
+                      '_id': response.receipt,
+                    },
+                    {
+                      $set: {
+                        'status': 'CREATED', 
+                        'order_id':  response.id
+                      },
+                    }
+                  )
+            }
+
+            res.json({
+                order_id: response.id,
+                currency: response.currency,
+                amount: response.amount,
+            })
+        } catch (error:any) {
+            console.log("error--------------->>>>>",error)
+            res.status(400).send(error.message);
+        }
 
 
-          console.log("payment instance -----------", instance)
+        //      3 35 . 6 15
+        // 2 25             1 45
+        //         4   0
+
 
 
 
