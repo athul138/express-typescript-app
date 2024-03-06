@@ -2,12 +2,8 @@ const express = require('express');
 var jwt = require('jsonwebtoken');
 import { Request, Response } from 'express';
 import { createUser, getUsers, updateUser, deleteUser, login , createOrder} from '../controllers/userController';
-
+// import {multur} from '../servieces/multurSearviece' 
 const router = express.Router();
-
-router.post('/', createUser);
-
-
 
 function authGuard(req:Request, res:Response, next:any) {
     const authHeader = req.headers['authorization'];
@@ -30,9 +26,9 @@ function authGuard(req:Request, res:Response, next:any) {
 
 
 
+router.post('/', createUser);
 router.post('/login', login);
 router.get('/', [authGuard, getUsers]);
-// router.get('/', getUsers);
 router.put('/:id', updateUser);
 router.delete('/:id', deleteUser);
 router.post('/payment', createOrder);
