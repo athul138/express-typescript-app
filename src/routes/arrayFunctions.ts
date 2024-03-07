@@ -319,8 +319,8 @@ router.get('/duplecates', (_, res: Response) => {
     // push to remaining subjects array.
 
     fullArray.forEach((key,element) => {
-        console.log("key-->>>>",key)
-        console.log("element-->>>>",element) 
+        // console.log("key-->>>>",key)
+        // console.log("element-->>>>",element) 
     });
 
     res.status(200).send({data:fullArray});
