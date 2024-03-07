@@ -14,11 +14,7 @@ export const saveWebhookResponse = async (req: Request, res: Response) => {
             meta:req.body
         }
        let webhookResponse = await webhookEvents.create(data)
-
         res.status(200).send(req.body);
-
-        
-
     } catch (error) {
         res.status(500).send('Server Error');
     }

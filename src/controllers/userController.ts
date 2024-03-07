@@ -126,7 +126,7 @@ export const deleteUser = async (req: Request, res: Response) => {
 export const createOrder = async (req: Request, res: Response) => {
     try {
 
-        console.log("jiiiiiiiiiiiiiiiiiiii")
+        // console.log("jiiiiiiiiiiiiiiiiiiii")
         //LOGIC
 
         let orderValues: any = { item_id: req.body?.item_id, name: "item1", description: "item1 describtion", price: req.body?.price, currency: "INR", status: "PENDING" }
@@ -144,11 +144,11 @@ export const createOrder = async (req: Request, res: Response) => {
             // order_capture: 1
         };
 
-        console.log("pazsfd",options)
+        // console.log("pazsfd",options)
 
         try {
             const response = await razorpay.orders.create(options)
-            console.log("response", response)
+            // console.log("response", response)
             if (response) {
 
                 await OrderModel.updateOne(
@@ -170,17 +170,9 @@ export const createOrder = async (req: Request, res: Response) => {
                 amount: response.amount,
             })
         } catch (error:any) {
-            console.log("error--------------->>>>>",error)
+            // console.log("error--------------->>>>>",error)
             res.status(400).send(error.message);
         }
-
-
-        //      3 35 . 6 15
-        // 2 25             1 45
-        //         4   0
-
-
-
 
     } catch (error: any) {
         res.status(500).send(error.message);
