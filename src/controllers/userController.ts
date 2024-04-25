@@ -5,10 +5,15 @@ import User, { UserInterface } from '../model/user';
 import OrderModel from '../model/order';
 var jwt = require('jsonwebtoken');
 const Razorpay = require('razorpay');
-
+// import { APIContracts, APIControllers } from 'authorizenet';
+let arrayOps = require('array-function-operations');
 
 import userSchema from '../validators/userValidator';
-import mongoose ,{Types} from 'mongoose';
+import mongoose, { Types } from 'mongoose';
+
+var ApiContracts = require('authorizenet').APIContracts;
+var ApiControllers = require('authorizenet').APIControllers;
+
 
 const { hashPassword, matchPassword } = require("../servieces/index");
 
@@ -133,8 +138,8 @@ export const createOrder = async (req: Request, res: Response) => {
         const orderId = await OrderModel.create(orderValues);
 
         var razorpay = new Razorpay({
-            key_id: 'rzp_test_xrqyfoB53WzmUC',
-            key_secret: 'SpLdPooUSgvDEQNioh9dePCs',
+            key_id: 'rzp_test_xrqyfoB53WzmUC+1', //remove +1
+            key_secret: 'SpLdPooUSgvDEQNioh9dePCs+1',
         });
 
         const options = {
@@ -153,15 +158,15 @@ export const createOrder = async (req: Request, res: Response) => {
 
                 await OrderModel.updateOne(
                     {
-                      '_id': response.receipt,
+                        '_id': response.receipt,
                     },
                     {
-                      $set: {
-                        'status': 'CREATED', 
-                        'order_id':  response.id
-                      },
+                        $set: {
+                            'status': 'CREATED',
+                            'order_id': response.id
+                        },
                     }
-                  )
+                )
             }
 
             res.json({
@@ -169,12 +174,106 @@ export const createOrder = async (req: Request, res: Response) => {
                 currency: response.currency,
                 amount: response.amount,
             })
-        } catch (error:any) {
+        } catch (error: any) {
             // console.log("error--------------->>>>>",error)
             res.status(400).send(error.message);
         }
 
     } catch (error: any) {
         res.status(500).send(error.message);
+    }
+};
+
+export const createPaymentToken = async (req: Request, res: Response) => {
+    try {
+        const { amount } = req.body?.amount ?? 11;
+
+        var merchantAuthenticationType = new ApiContracts.MerchantAuthenticationType();
+        merchantAuthenticationType.setName('67Kx3R5rHz');
+        merchantAuthenticationType.setTransactionKey('48Q568j8Sm6S3aeu');
+
+        var transactionRequestType = new ApiContracts.TransactionRequestType();
+        transactionRequestType.setTransactionType(ApiContracts.TransactionTypeEnum.AUTHCAPTURETRANSACTION);
+        transactionRequestType.setAmount(100);
+
+        var setting1 = new ApiContracts.SettingType();
+        setting1.setSettingName('hostedPaymentButtonOptions');
+        setting1.setSettingValue('{\"text\": \"Pay\"}');
+
+        var setting2 = new ApiContracts.SettingType();
+        setting2.setSettingName('hostedPaymentOrderOptions');
+        setting2.setSettingValue('{\"show\": false}');
+
+        var settingList = [];
+        settingList.push(setting1);
+        settingList.push(setting2);
+
+        var alist = new ApiContracts.ArrayOfSetting();
+        alist.setSetting(settingList);
+
+        var getRequest = new ApiContracts.GetHostedPaymentPageRequest();
+        getRequest.setMerchantAuthentication(merchantAuthenticationType);
+        getRequest.setTransactionRequest(transactionRequestType);
+        getRequest.setHostedPaymentSettings(alist);
+
+        var ctrl = new ApiControllers.GetHostedPaymentPageController(getRequest.getJSON());
+
+        ctrl.execute(function () {
+
+            var apiResponse = ctrl.getResponse();
+
+            var response = new ApiContracts.GetHostedPaymentPageResponse(apiResponse);
+
+            //pretty print response
+            //console.log(JSON.stringify(response, null, 2));
+
+            if (response != null) {
+
+                if (response.getMessages().getResultCode() == ApiContracts.MessageTypeEnum.OK) {
+                    console.log(response.getToken());
+                }
+                else {
+                    //console.log('Result Code: ' + response.getMessages().getResultCode());
+                    console.log('Error Code: ' + response.getMessages().getMessage()[0].getCode());
+                    console.log('Error message: ' + response.getMessages().getMessage()[0].getText());
+                }
+            }
+            else {
+                console.log('Null response received');
+            }
+
+        });
+
+        res.status(500).json({ message: 'Internal server error' });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: 'Internal server error' });
+    }
+};
+
+export const arrayOperationsPackageCheck = async (req: Request, res: Response) => {
+    try {
+
+        let arr = ["apple", "apple", "apple", "apple", "apple", "mango", "mango", "mango", "banana", "banana", "grapes", "orange", "orange", "orange", "orange", "orange", "orange", "orange", "orange", "orange", "orange", "orange"]
+
+        function bulkUpdateArrayElements(arr: any, elementToUpdate: string, newElement: string) {
+            let updatedArray: any = []
+            arr.map((element: any) => {
+                if (element == elementToUpdate) {
+                    element = newElement
+                }
+                updatedArray.push(element)
+            })
+            return updatedArray
+        }
+
+
+        let newArray = bulkUpdateArrayElements(arr, "apple", "apples")
+
+        res.json({ "updatedArray": newArray })
+
+
+    } catch (error) {
+        res.status(500).send('Server Error');
     }
 };

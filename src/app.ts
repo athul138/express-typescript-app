@@ -2,6 +2,7 @@ const  express = require('express');
 import itemRoutes from './routes/itemRoutes';
 import userRoutes from './routes/user';
 import webhookRoutes from './routes/webhooks';
+import paypalRoutes from './routes/paypalRoutes';
 const multer = require("multer");
 const app = express();
 
@@ -14,5 +15,6 @@ app.use(express.json());
 app.use('/items', itemRoutes);
 app.use('/users', userRoutes);
 app.use('/', webhookRoutes);
+app.use('/paypal',paypalRoutes)
 
 export default app;
