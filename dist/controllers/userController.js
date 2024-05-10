@@ -13,12 +13,17 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.createOrder = exports.deleteUser = exports.updateUser = exports.getUsers = exports.login = exports.createUser = void 0;
+exports.getUsers = exports.arrayOperationsPackageCheck = exports.createPaymentToken = exports.createOrder = exports.deleteUser = exports.updateUser = exports.login = exports.createUser = void 0;
 const user_1 = __importDefault(require("../model/user"));
 const order_1 = __importDefault(require("../model/order"));
 var jwt = require('jsonwebtoken');
 const Razorpay = require('razorpay');
+// import { APIContracts, APIControllers } from 'authorizenet';
+let arrayOps = require('array-function-operations');
 const userValidator_1 = __importDefault(require("../validators/userValidator"));
+const UserRepository_1 = __importDefault(require("../repository/UserRepository"));
+var ApiContracts = require('authorizenet').APIContracts;
+var ApiControllers = require('authorizenet').APIControllers;
 const { hashPassword, matchPassword } = require("../servieces/index");
 const createUser = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     var _a, _b, _c, _d;
@@ -77,17 +82,15 @@ const login = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     }
 });
 exports.login = login;
-const getUsers = (_req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    //implement middleware.
-    try {
-        const users = yield user_1.default.find();
-        res.json(users);
-    }
-    catch (error) {
-        res.status(500).send('Server Error');
-    }
-});
-exports.getUsers = getUsers;
+// export const getUsers = async (_req: Request, res: Response) => {
+//     //implement middleware.
+//     try {
+//         const users = await User.find();
+//         res.json(users);
+//     } catch (error) {
+//         res.status(500).send('Server Error');
+//     }
+// };
 const updateUser = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const { id } = req.params;
@@ -125,8 +128,8 @@ const createOrder = (req, res) => __awaiter(void 0, void 0, void 0, function* ()
         let orderValues = { item_id: (_e = req.body) === null || _e === void 0 ? void 0 : _e.item_id, name: "item1", description: "item1 describtion", price: (_f = req.body) === null || _f === void 0 ? void 0 : _f.price, currency: "INR", status: "PENDING" };
         const orderId = yield order_1.default.create(orderValues);
         var razorpay = new Razorpay({
-            key_id: 'rzp_test_xrqyfoB53WzmUC',
-            key_secret: 'SpLdPooUSgvDEQNioh9dePCs',
+            key_id: 'rzp_test_xrqyfoB53WzmUC+1',
+            key_secret: 'SpLdPooUSgvDEQNioh9dePCs+1',
         });
         const options = {
             amount: parseInt(orderValues.price) * 100,
@@ -164,3 +167,87 @@ const createOrder = (req, res) => __awaiter(void 0, void 0, void 0, function* ()
     }
 });
 exports.createOrder = createOrder;
+const createPaymentToken = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    var _g, _h;
+    try {
+        const { amount } = (_h = (_g = req.body) === null || _g === void 0 ? void 0 : _g.amount) !== null && _h !== void 0 ? _h : 11;
+        var merchantAuthenticationType = new ApiContracts.MerchantAuthenticationType();
+        merchantAuthenticationType.setName('67Kx3R5rHz');
+        merchantAuthenticationType.setTransactionKey('48Q568j8Sm6S3aeu');
+        var transactionRequestType = new ApiContracts.TransactionRequestType();
+        transactionRequestType.setTransactionType(ApiContracts.TransactionTypeEnum.AUTHCAPTURETRANSACTION);
+        transactionRequestType.setAmount(100);
+        var setting1 = new ApiContracts.SettingType();
+        setting1.setSettingName('hostedPaymentButtonOptions');
+        setting1.setSettingValue('{\"text\": \"Pay\"}');
+        var setting2 = new ApiContracts.SettingType();
+        setting2.setSettingName('hostedPaymentOrderOptions');
+        setting2.setSettingValue('{\"show\": false}');
+        var settingList = [];
+        settingList.push(setting1);
+        settingList.push(setting2);
+        var alist = new ApiContracts.ArrayOfSetting();
+        alist.setSetting(settingList);
+        var getRequest = new ApiContracts.GetHostedPaymentPageRequest();
+        getRequest.setMerchantAuthentication(merchantAuthenticationType);
+        getRequest.setTransactionRequest(transactionRequestType);
+        getRequest.setHostedPaymentSettings(alist);
+        var ctrl = new ApiControllers.GetHostedPaymentPageController(getRequest.getJSON());
+        ctrl.execute(function () {
+            var apiResponse = ctrl.getResponse();
+            var response = new ApiContracts.GetHostedPaymentPageResponse(apiResponse);
+            //pretty print response
+            //console.log(JSON.stringify(response, null, 2));
+            if (response != null) {
+                if (response.getMessages().getResultCode() == ApiContracts.MessageTypeEnum.OK) {
+                    console.log(response.getToken());
+                }
+                else {
+                    //console.log('Result Code: ' + response.getMessages().getResultCode());
+                    console.log('Error Code: ' + response.getMessages().getMessage()[0].getCode());
+                    console.log('Error message: ' + response.getMessages().getMessage()[0].getText());
+                }
+            }
+            else {
+                console.log('Null response received');
+            }
+        });
+        res.status(500).json({ message: 'Internal server error' });
+    }
+    catch (error) {
+        console.error(error);
+        res.status(500).json({ message: 'Internal server error' });
+    }
+});
+exports.createPaymentToken = createPaymentToken;
+const arrayOperationsPackageCheck = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        let arr = ["apple", "apple", "apple", "apple", "apple", "mango", "mango", "mango", "banana", "banana", "grapes", "orange", "orange", "orange", "orange", "orange", "orange", "orange", "orange", "orange", "orange", "orange"];
+        function bulkUpdateArrayElements(arr, elementToUpdate, newElement) {
+            let updatedArray = [];
+            arr.map((element) => {
+                if (element == elementToUpdate) {
+                    element = newElement;
+                }
+                updatedArray.push(element);
+            });
+            return updatedArray;
+        }
+        let newArray = bulkUpdateArrayElements(arr, "apple", "apples");
+        res.json({ "updatedArray": newArray });
+    }
+    catch (error) {
+        res.status(500).send('Server Error');
+    }
+});
+exports.arrayOperationsPackageCheck = arrayOperationsPackageCheck;
+/**
+ * getUsers
+ */
+const getUsers = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const userRepository = new UserRepository_1.default();
+    let Repository = '';
+    // let Repository:any = await userRepository.getUsers()
+    res.json(Repository);
+});
+exports.getUsers = getUsers;

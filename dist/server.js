@@ -9,9 +9,22 @@ const database_1 = require("./utils/database");
 const Env = require('dotenv');
 const cors = require("cors");
 // Load environment variables from .env file
+const Redis = require("ioredis");
 Env.config();
 const PORT = process.env.PORT || 3345;
 (0, database_1.connectDB)();
+// // Replace with your actual Render Redis URL
+// const redisURL = 'redis://red-coefli8l6cac73c3bitg:6379'
+// const client = new Redis(redisURL);
+// (async () => {
+//   try {
+//     await client.connect();
+//     console.log("Successfully connected to Redis!");
+//     await client.quit();
+//   } catch (error) {
+//     console.error("Error connecting to Redis:", error);
+//   }
+// })();
 // Start server
 app_1.default.listen(PORT, () => {
     console.log(`Server is running on port ${PORT}`);

@@ -7,6 +7,8 @@ const express = require('express');
 const itemRoutes_1 = __importDefault(require("./routes/itemRoutes"));
 const user_1 = __importDefault(require("./routes/user"));
 const webhooks_1 = __importDefault(require("./routes/webhooks"));
+const paypalRoutes_1 = __importDefault(require("./routes/paypalRoutes"));
+const redisRoutes_1 = __importDefault(require("./routes/redisRoutes"));
 const multer = require("multer");
 const app = express();
 app.use(express.urlencoded({ extended: true })); // body will not work
@@ -15,4 +17,6 @@ app.use(express.json());
 app.use('/items', itemRoutes_1.default);
 app.use('/users', user_1.default);
 app.use('/', webhooks_1.default);
+app.use('/paypal', paypalRoutes_1.default);
+app.use('/redis', redisRoutes_1.default);
 exports.default = app;
