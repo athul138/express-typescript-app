@@ -7,9 +7,13 @@ var jwt = require('jsonwebtoken');
 const Razorpay = require('razorpay');
 // import { APIContracts, APIControllers } from 'authorizenet';
 let arrayOps = require('array-function-operations');
+const { Worker } = require('worker_threads')
+
+
 
 import userSchema from '../validators/userValidator';
 import mongoose, { Types } from 'mongoose';
+// import UserRepository from '../repository/UserRepository';
 
 var ApiContracts = require('authorizenet').APIContracts;
 var ApiControllers = require('authorizenet').APIControllers;
@@ -91,15 +95,15 @@ export const login = async (req: Request, res: Response) => {
 };
 
 
-export const getUsers = async (_req: Request, res: Response) => {
-    //implement middleware.
-    try {
-        const users = await User.find();
-        res.json(users);
-    } catch (error) {
-        res.status(500).send('Server Error');
-    }
-};
+// export const getUsers = async (_req: Request, res: Response) => {
+//     //implement middleware.
+//     try {
+//         const users = await User.find();
+//         res.json(users);
+//     } catch (error) {
+//         res.status(500).send('Server Error');
+//     }
+// };
 
 export const updateUser = async (req: Request, res: Response) => {
     try {
@@ -254,26 +258,75 @@ export const createPaymentToken = async (req: Request, res: Response) => {
 export const arrayOperationsPackageCheck = async (req: Request, res: Response) => {
     try {
 
-        let arr = ["apple", "apple", "apple", "apple", "apple", "mango", "mango", "mango", "banana", "banana", "grapes", "orange", "orange", "orange", "orange", "orange", "orange", "orange", "orange", "orange", "orange", "orange"]
+        console.log("body------>>", req.body)
+        let body = req.body
+        let newArray = await arrayOps.sum(body.array)
 
-        function bulkUpdateArrayElements(arr: any, elementToUpdate: string, newElement: string) {
-            let updatedArray: any = []
-            arr.map((element: any) => {
-                if (element == elementToUpdate) {
-                    element = newElement
-                }
-                updatedArray.push(element)
-            })
-            return updatedArray
-        }
-
-
-        let newArray = bulkUpdateArrayElements(arr, "apple", "apples")
+        // let arr = ["apple", "apple", "apple", "apple", "apple", "mango", "mango", "mango", "banana", "banana", "grapes", "orange", "orange", "orange", "orange", "orange", "orange", "orange", "orange", "orange", "orange", "orange"]
+        // function bulkUpdateArrayElements(arr: any, elementToUpdate: string, newElement: string) {
+        //     let updatedArray: any = []
+        //     arr.map((element: any) => {
+        //         if (element == elementToUpdate) {
+        //             element = newElement
+        //         }
+        //         updatedArray.push(element)
+        //     })
+        //     return updatedArray
+        // }
+        // let newArray = bulkUpdateArrayElements(arr, "apple", "apples")
 
         res.json({ "updatedArray": newArray })
 
 
     } catch (error) {
+
+        console.log("error------->>", error)
         res.status(500).send('Server Error');
     }
 };
+
+/**
+ * getUsers
+ */
+// export const getUsers = async (req:Request,res:Response) => {
+
+//     console.log("hi")
+
+//     const userRepository = new UserRepository();
+//     // let Repository:any = ''
+//     let Repository:any = await userRepository.getUsers()
+//     res.json(Repository)
+
+// }
+
+export const blockerCode = async (req: Request, res: Response) => {
+
+    console.log("start thread----------->>>>")
+
+    let worker = new Worker("../express-app/src/servieces/worker.ts");
+
+    worker.on("message", (data:any)=>{
+        console.log(`result is ${data}`)
+        res.send(`result is ${data}`).status(200)
+    })
+
+    worker.on("error", (error:any)=>{
+        console.log(`an error occured :- ${error}`)
+        res.send(`an error occured :- ${error}`).status(404)
+    })
+
+    // let counter = 0
+    // for( let i=0; i<20000000000000000000000000000000; i++ ){
+    //     counter++
+    // }
+
+    // res.send(`final counter value is ${counter}`).status(404)
+
+}
+
+export const nonBlockerCode = async (req: Request, res: Response) => {
+
+    let Repository = "response"
+    res.json(Repository).status(200)
+
+}
