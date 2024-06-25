@@ -7,6 +7,7 @@ var jwt = require('jsonwebtoken');
 const Razorpay = require('razorpay');
 // import { APIContracts, APIControllers } from 'authorizenet';
 let arrayOps = require('array-function-operations');
+import { connectRedis } from '../utils/redis';
 
 import userSchema from '../validators/userValidator';
 import mongoose, { Types } from 'mongoose';
@@ -99,6 +100,52 @@ export const getUsers = async (_req: Request, res: Response) => {
     } catch (error) {
         res.status(500).send('Server Error');
     }
+};
+
+export const getUser = async (req: Request, res: Response) => {
+    //implement middleware.
+    const { id } = req.params;
+
+    try {
+
+    let redisUserId = `user:${id}`
+    let client: any = await connectRedis()
+
+    let redisUser = await client.hGetAll(redisUserId.toString());
+
+    await client.flushAll();
+    // console.log("redisUser--->>>", redisUser)
+    // console.log("typeOf--->>>", typeof(redisUser))
+    // console.log("length--->>>", Object.keys(redisUser).length)
+
+    let length = Object.keys(redisUser).length
+    let users:any = {}
+
+    if (length > 0 ) {
+        users = redisUser
+        console.log("redis-->>>")
+    } else {
+
+        users = await User.findById(id, 'name email createdAt');
+
+        let new_users: any = {
+            name: users.name,
+            email: users.email,
+            createdAt: users.createdAt.toString()
+        }
+
+        await client.hSet(redisUserId.toString(), new_users);
+        await client.expire(redisUserId.toString(), 1000);
+
+    }
+    
+    await client.disconnect();
+    res.json(users);
+
+    } catch (error) {
+        res.status(500).send(`Server Error----- ${error}`);
+    }
+
 };
 
 export const updateUser = async (req: Request, res: Response) => {

@@ -9,10 +9,7 @@ Env.config();
 
 const PORT = process.env.PORT || 3345;
 
-
 connectDB();
-
-
 
 // Start server
 app.listen(PORT, () => {
