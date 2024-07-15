@@ -1,6 +1,6 @@
 // routes/itemRoutes.ts
 const express = require('express');
-import { createItem, getItems, updateItem, deleteItem } from '../controllers/itemController';
+import { createItem, getItems, updateItem, deleteItem, jsFunctions} from '../controllers/itemController';
 const router = express.Router();
 const multer = require('multer');
 
@@ -19,5 +19,6 @@ router.post('/', upload.array('images'), createItem);
 router.get('/', getItems);
 router.put('/:id', updateItem);
 router.delete('/:id', deleteItem);
+router.post('/js-functions', jsFunctions);
 
 export default router;
