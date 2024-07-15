@@ -7,7 +7,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const app_1 = __importDefault(require("./app"));
 const database_1 = require("./utils/database");
 const Env = require('dotenv');
-const cors = require("cors");
+// const cors = require("cors");
 // Load environment variables from .env file
 Env.config();
 const PORT = process.env.PORT || 3345;

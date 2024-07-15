@@ -3,7 +3,7 @@
 import app from './app';
 import { connectDB } from './utils/database';
 const Env = require('dotenv')
-const cors = require("cors");
+// const cors = require("cors");
 // Load environment variables from .env file
 Env.config();
 

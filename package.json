@@ -6,12 +6,13 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "nodemon src/server.ts",
-    "build":"npx tsc"
+    "build": "npx tsc"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "amqplib": "^0.10.4",
     "array-function-operations": "^1.0.0",
     "authorizenet": "^1.0.8",
     "aws-sdk": "^2.1621.0",
@@ -26,6 +27,7 @@
     "mongoose": "^8.2.0",
     "multer": "^1.4.5-lts.1",
     "nodemon": "^3.1.0",
+    "pm2": "^5.4.1",
     "razorpay": "^2.9.2",
     "redis": "^4.6.14"
   },

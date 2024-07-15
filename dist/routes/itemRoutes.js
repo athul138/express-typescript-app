@@ -19,4 +19,5 @@ router.post('/', upload.array('images'), itemController_1.createItem);
 router.get('/', itemController_1.getItems);
 router.put('/:id', itemController_1.updateItem);
 router.delete('/:id', itemController_1.deleteItem);
+router.post('/js-functions', itemController_1.jsFunctions);
 exports.default = router;

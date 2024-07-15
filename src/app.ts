@@ -4,7 +4,8 @@ import userRoutes from './routes/user';
 import webhookRoutes from './routes/webhooks';
 import paypalRoutes from './routes/paypalRoutes';
 import redisRoutes from './routes/redisRoutes';
-const multer = require("multer");
+import rabbitMQRoutes from './routes/rabbitMQRoutes';
+// const multer = require("multer");
 const app = express();
 
 
@@ -18,5 +19,7 @@ app.use('/users', userRoutes);
 app.use('/', webhookRoutes);
 app.use('/paypal',paypalRoutes)
 app.use('/redis',redisRoutes)
+app.use('/redis',redisRoutes)
+app.use('/rabbit-mq',rabbitMQRoutes)
 
 export default app;
